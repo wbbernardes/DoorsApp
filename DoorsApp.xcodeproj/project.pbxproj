@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B14AF8E72F73C672004D280D /* AuthFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B14AF8E62F73C672004D280D /* AuthFeature */; };
+		B14AF8E92F73C672004D280D /* DoorsFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B14AF8E82F73C672004D280D /* DoorsFeature */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		B14AF8B62F73B6F2004D280D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B14AF8E72F73C672004D280D /* AuthFeature in Frameworks */,
+				B14AF8E92F73C672004D280D /* DoorsFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,7 @@
 				B14AF8A82F73B6EF004D280D /* DoorsApp */,
 				B14AF8B82F73B6F2004D280D /* DoorsAppTests */,
 				B14AF8C22F73B6F2004D280D /* DoorsAppUITests */,
+				B14AF8E52F73C672004D280D /* Frameworks */,
 				B14AF8A72F73B6EF004D280D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +98,13 @@
 				B14AF8BF2F73B6F2004D280D /* DoorsAppUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B14AF8E52F73C672004D280D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +127,8 @@
 			);
 			name = DoorsApp;
 			packageProductDependencies = (
+				B14AF8E62F73C672004D280D /* AuthFeature */,
+				B14AF8E82F73C672004D280D /* DoorsFeature */,
 			);
 			productName = DoorsApp;
 			productReference = B14AF8A62F73B6EF004D280D /* DoorsApp.app */;
@@ -195,6 +212,9 @@
 			);
 			mainGroup = B14AF89D2F73B6EF004D280D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B14AF8E42F73C346004D280D /* XCLocalSwiftPackageReference "DoorsPackages" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B14AF8A72F73B6EF004D280D /* Products */;
 			projectDirPath = "";
@@ -578,6 +598,26 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		B14AF8E42F73C346004D280D /* XCLocalSwiftPackageReference "DoorsPackages" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = DoorsPackages;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B14AF8E62F73C672004D280D /* AuthFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B14AF8E42F73C346004D280D /* XCLocalSwiftPackageReference "DoorsPackages" */;
+			productName = AuthFeature;
+		};
+		B14AF8E82F73C672004D280D /* DoorsFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B14AF8E42F73C346004D280D /* XCLocalSwiftPackageReference "DoorsPackages" */;
+			productName = DoorsFeature;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B14AF89E2F73B6EF004D280D /* Project object */;
 }
