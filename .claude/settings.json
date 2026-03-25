@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(xcodebuild -project DoorsApp.xcodeproj*)",
+      "Bash(xcodebuild -version*)",
+      "Bash(xcodebuild -list*)",
+      "Bash(xcodebuild -showBuildSettings*)",
+      "Bash(xcrun simctl *)",
+      "Bash(swiftformat *)",
+      "Bash(swiftlint *)",
+      "Bash(xcbeautify*)",
+      "Bash(xcode-select *)",
+      "Bash(rg *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(which *)",
+      "Bash(mkdir *)",
+      "Bash(touch *)",
+      "Bash(cp *)",
+      "Bash(mv *)"
+    ],
+    "deny": [
+      "Bash(rm -rf /)*",
+      "Bash(sudo *)",
+      "Bash(git push --force*)"
+    ]
+  }
+}
