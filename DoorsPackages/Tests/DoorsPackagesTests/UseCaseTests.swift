@@ -1,6 +1,6 @@
 import CoreNetwork
-import Foundation
 @testable import DomainKit
+import Foundation
 import Testing
 
 // MARK: - FetchDoorsUseCase

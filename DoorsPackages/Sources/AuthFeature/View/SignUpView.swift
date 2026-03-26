@@ -77,10 +77,7 @@ struct SignUpView: View {
                     .textContentType(.newPassword)
             }
 
-            Text("auth.password_hint", bundle: .module)
-                .font(.caption2)
-                .foregroundStyle(.primary.opacity(Layout.hintOpacity))
-                .frame(maxWidth: .infinity, alignment: .leading)
+            PasswordRequirementsView(viewModel: viewModel)
 
             if let error = viewModel.errorMessage {
                 Text(error)
@@ -118,6 +115,41 @@ extension SignUpView {
         static let topPadding: CGFloat = 16
         static let hintOpacity: Double = 0.55
         static let gradientStartOpacity: Double = 0.15
+    }
+}
+
+// MARK: - PasswordRequirementsView
+
+private struct PasswordRequirementsView: View {
+    let viewModel: AuthViewModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            row(String(localized: "auth.password_req.length", bundle: .module),
+                isMet: viewModel.passwordLengthValid)
+            row(String(localized: "auth.password_req.uppercase", bundle: .module),
+                isMet: viewModel.passwordHasUppercase)
+            row(String(localized: "auth.password_req.number", bundle: .module),
+                isMet: viewModel.passwordHasNumber)
+            row(String(localized: "auth.password_req.symbol", bundle: .module),
+                isMet: viewModel.passwordHasSymbol)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func row(_ text: String, isMet: Bool) -> some View {
+        let isEmpty = viewModel.password.isEmpty
+        let color: Color = isEmpty ? .secondary.opacity(0.55) : (isMet ? .green : .red)
+        let icon = isEmpty ? "circle" : (isMet ? "checkmark.circle.fill" : "xmark.circle.fill")
+
+        return HStack(spacing: 6) {
+            Image(systemName: icon)
+            Text(text)
+        }
+        .font(.caption2)
+        .foregroundStyle(color)
+        .animation(.easeInOut(duration: 0.2), value: isMet)
+        .animation(.easeInOut(duration: 0.2), value: isEmpty)
     }
 }
 

@@ -22,11 +22,24 @@ public final class AuthViewModel {
     }
 
     var isPasswordValid: Bool {
+        passwordLengthValid && passwordHasUppercase && passwordHasNumber && passwordHasSymbol
+    }
+
+    var passwordLengthValid: Bool {
         let count = password.count
-        guard count >= 4, count <= 12 else { return false }
-        return password.contains { $0.isUppercase }
-            && password.contains { $0.isNumber }
-            && password.contains { $0.isPunctuation || $0.isSymbol }
+        return count >= 4 && count <= 12
+    }
+
+    var passwordHasUppercase: Bool {
+        password.contains { $0.isUppercase }
+    }
+
+    var passwordHasNumber: Bool {
+        password.contains { $0.isNumber }
+    }
+
+    var passwordHasSymbol: Bool {
+        password.contains { $0.isPunctuation || $0.isSymbol }
     }
 
     var isSignInFormValid: Bool {

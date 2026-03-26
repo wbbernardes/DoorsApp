@@ -1,7 +1,7 @@
 @testable import AuthFeature
-import Foundation
 import CoreNetwork
 @testable import DomainKit
+import Foundation
 import Testing
 
 @Suite("AuthViewModel")

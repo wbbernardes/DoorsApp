@@ -7,5 +7,9 @@
 "auth.first_name" = "Nome";
 "auth.last_name" = "Sobrenome";
 "auth.password_hint" = "4–12 caracteres, deve incluir maiúscula, número e símbolo";
+"auth.password_req.length" = "4–12 caracteres";
+"auth.password_req.uppercase" = "Uma letra maiúscula";
+"auth.password_req.number" = "Um número";
+"auth.password_req.symbol" = "Um símbolo";
 "auth.sign_up_prompt" = "Não tem conta? Cadastre-se";
 "auth.sign_in_prompt" = "Já tem uma conta?";
