@@ -58,6 +58,7 @@ public struct DoorsListView: View {
             }
         }
         .listStyle(.plain)
+        .refreshable { await viewModel.onRefresh() }
     }
 }
 

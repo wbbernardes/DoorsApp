@@ -1,3 +1,4 @@
+import BLEKit
 import CoreNetwork
 @testable import DomainKit
 @testable import EventsFeature
@@ -153,6 +154,126 @@ struct EventsViewModelTests {
         #expect(vm.isSimulating == false)
         #expect(vm.simulationSuccess == false)
         #expect(vm.isUnauthorized == false)
+        #expect(vm.selectedFilter == .all)
+    }
+
+    // MARK: - Filter
+
+    @Test func filteredEvents_withAllFilter_returnsAllEvents() {
+        let vm = makeVM()
+        vm.events = [
+            .stub(id: 1, logType: "DOOR_OPEN"),
+            .stub(id: 2, logType: "UNLOCK_DENIED"),
+            .stub(id: 3, logType: "BATTERY_LOW")
+        ]
+
+        #expect(vm.filteredEvents.count == 3)
+    }
+
+    @Test func filteredEvents_withOpenFilter_returnsOnlyOpenEvents() {
+        let vm = makeVM()
+        vm.events = [
+            .stub(id: 1, logType: "DOOR_OPEN"),
+            .stub(id: 2, logType: "UNLOCK_DENIED"),
+            .stub(id: 3, logType: "BATTERY_LOW")
+        ]
+        vm.selectedFilter = .open
+
+        #expect(vm.filteredEvents.count == 1)
+        #expect(vm.filteredEvents[0].logType == "DOOR_OPEN")
+    }
+
+    @Test func filteredEvents_withDeniedFilter_excludesRegularUnlock() {
+        let vm = makeVM()
+        vm.events = [
+            .stub(id: 1, logType: "UNLOCK"),
+            .stub(id: 2, logType: "UNLOCK_DENIED")
+        ]
+        vm.selectedFilter = .denied
+
+        #expect(vm.filteredEvents.count == 1)
+        #expect(vm.filteredEvents[0].logType == "UNLOCK_DENIED")
+    }
+
+    @Test func availableFilters_includesOnlyPresentCategories() {
+        let vm = makeVM()
+        vm.events = [
+            .stub(id: 1, logType: "DOOR_OPEN"),
+            .stub(id: 2, logType: "BATTERY_LOW")
+        ]
+
+        #expect(vm.availableFilters.contains(.all))
+        #expect(vm.availableFilters.contains(.open))
+        #expect(vm.availableFilters.contains(.battery))
+        #expect(!vm.availableFilters.contains(.unlock))
+        #expect(!vm.availableFilters.contains(.denied))
+        #expect(!vm.availableFilters.contains(.close))
+    }
+
+    @Test func availableFilters_withNoEvents_returnsOnlyAll() {
+        let vm = makeVM()
+
+        #expect(vm.availableFilters == [.all])
+    }
+
+    // MARK: - BLE Filter
+
+    @Test func filteredBLEFrames_withAllFilter_returnsAllFrames() {
+        let vm = makeVM()
+        vm.bleFrames = [
+            .stub(eventType: .doorOpen),
+            .stub(eventType: .unlock),
+            .stub(eventType: .batteryLow)
+        ]
+
+        #expect(vm.filteredBLEFrames.count == 3)
+    }
+
+    @Test func filteredBLEFrames_withDoorFilter_returnsOnlyDoorFrames() {
+        let vm = makeVM()
+        vm.bleFrames = [
+            .stub(eventType: .doorOpen),
+            .stub(eventType: .doorClose),
+            .stub(eventType: .unlock)
+        ]
+        vm.selectedBLEFilter = .door
+
+        #expect(vm.filteredBLEFrames.count == 2)
+        #expect(vm.filteredBLEFrames.allSatisfy { $0.eventType == .doorOpen || $0.eventType == .doorClose })
+    }
+
+    @Test func filteredBLEFrames_withUnlockFilter_excludesDenied() {
+        let vm = makeVM()
+        vm.bleFrames = [
+            .stub(eventType: .unlock),
+            .stub(eventType: .unlockDenied)
+        ]
+        vm.selectedBLEFilter = .unlock
+
+        #expect(vm.filteredBLEFrames.count == 2)
+    }
+
+    @Test func availableBLEFilters_includesOnlyPresentCategories() {
+        let vm = makeVM()
+        vm.bleFrames = [
+            .stub(eventType: .doorOpen),
+            .stub(eventType: .batteryLow)
+        ]
+
+        #expect(vm.availableBLEFilters.contains(.all))
+        #expect(vm.availableBLEFilters.contains(.door))
+        #expect(vm.availableBLEFilters.contains(.battery))
+        #expect(!vm.availableBLEFilters.contains(.unlock))
+        #expect(!vm.availableBLEFilters.contains(.schedule))
+        #expect(!vm.availableBLEFilters.contains(.status))
+        #expect(!vm.availableBLEFilters.contains(.error))
+        #expect(!vm.availableBLEFilters.contains(.system))
+    }
+
+    @Test func availableBLEFilters_withNoFrames_returnsOnlyAll() {
+        let vm = makeVM()
+
+        #expect(vm.availableBLEFilters == [.all])
     }
 
     // MARK: - Feature Flags

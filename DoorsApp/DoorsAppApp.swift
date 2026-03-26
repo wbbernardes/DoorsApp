@@ -14,7 +14,13 @@ struct DoorsAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(authViewModel: authViewModel, featureFlags: container.featureFlags)
+            #if DEBUG
+                RootView(authViewModel: authViewModel,
+                         featureFlags: container.featureFlags,
+                         debugFeatureFlags: container.localFeatureFlags)
+            #else
+                RootView(authViewModel: authViewModel, featureFlags: container.featureFlags)
+            #endif
         }
     }
 }

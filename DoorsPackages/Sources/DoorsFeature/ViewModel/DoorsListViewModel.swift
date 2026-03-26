@@ -1,5 +1,6 @@
 import CoreNetwork
 import DomainKit
+import Foundation
 import Observation
 
 @MainActor
@@ -42,6 +43,10 @@ final class DoorsListViewModel {
         Task { await loadFirstPage() }
     }
 
+    func onRefresh() async {
+        await loadFirstPage()
+    }
+
     func onSearchQueryChanged() {
         queryTask?.cancel()
         queryTask = Task {
@@ -74,6 +79,10 @@ final class DoorsListViewModel {
             hasMore = result.hasMore
         } catch NetworkError.unauthorized {
             isUnauthorized = true
+        } catch is CancellationError {
+            return
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            return
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -91,6 +100,10 @@ final class DoorsListViewModel {
             hasMore = result.hasMore
         } catch NetworkError.unauthorized {
             isUnauthorized = true
+        } catch is CancellationError {
+            return
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            return
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -109,6 +122,10 @@ final class DoorsListViewModel {
             hasMore = result.hasMore
         } catch NetworkError.unauthorized {
             isUnauthorized = true
+        } catch is CancellationError {
+            return
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            return
         } catch {
             errorMessage = error.localizedDescription
         }

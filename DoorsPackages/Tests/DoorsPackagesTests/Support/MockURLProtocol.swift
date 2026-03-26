@@ -1,5 +1,5 @@
-import Foundation
 @testable import CoreNetwork
+import Foundation
 
 // MARK: - MockURLProtocol
 
@@ -9,8 +9,13 @@ final class MockURLProtocol: URLProtocol {
     nonisolated(unsafe) static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
     nonisolated(unsafe) static var lastRequest: URLRequest?
 
-    override class func canInit(with request: URLRequest) -> Bool { true }
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override class func canInit(with _: URLRequest) -> Bool {
+        true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
 
     override func startLoading() {
         Self.lastRequest = request

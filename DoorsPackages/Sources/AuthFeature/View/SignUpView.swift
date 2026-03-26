@@ -95,7 +95,7 @@ struct SignUpView: View {
             .padding(.horizontal, Layout.fieldPaddingH)
             .padding(.vertical, Layout.fieldPaddingV)
             .frame(height: Layout.fieldHeight)
-            .glassEffect(in: .rect(cornerRadius: Layout.fieldCornerRadius))
+            .background(.thinMaterial, in: .rect(cornerRadius: Layout.fieldCornerRadius))
     }
 }
 

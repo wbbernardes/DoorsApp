@@ -7,6 +7,7 @@ import Foundation
 import Testing
 
 // MARK: - Integration Tests
+
 //
 // All integration tests share MockURLProtocol's static handler, so they MUST run serially.
 // The .serialized trait on the parent suite guarantees that nested suites also run serially,
@@ -83,7 +84,7 @@ struct IntegrationTests {
             var statusCode: Int?
             do {
                 let _: AuthToken = try await client.request(.signIn(email: "a@b.com", password: "p"))
-            } catch NetworkError.httpError(let code, _) {
+            } catch let NetworkError.httpError(code, _) {
                 statusCode = code
             }
             #expect(statusCode == 404)
@@ -97,7 +98,7 @@ struct IntegrationTests {
             var statusCode: Int?
             do {
                 let _: AuthToken = try await client.request(.signIn(email: "a@b.com", password: "p"))
-            } catch NetworkError.httpError(let code, _) {
+            } catch let NetworkError.httpError(code, _) {
                 statusCode = code
             }
             #expect(statusCode == 500)
@@ -161,7 +162,7 @@ struct IntegrationTests {
             var statusCode: Int?
             do {
                 try await client.requestVoid(.simulateEvent(count: 1, logType: "DOOR_OPEN", debug: false))
-            } catch NetworkError.httpError(let code, _) {
+            } catch let NetworkError.httpError(code, _) {
                 statusCode = code
             }
             #expect(statusCode == 400)
@@ -221,7 +222,7 @@ struct IntegrationTests {
             var statusCode: Int?
             do {
                 _ = try await repo.signIn(email: "user@test.com", password: "Pass1!")
-            } catch NetworkError.httpError(let code, _) {
+            } catch let NetworkError.httpError(code, _) {
                 statusCode = code
             }
             #expect(statusCode == 409)

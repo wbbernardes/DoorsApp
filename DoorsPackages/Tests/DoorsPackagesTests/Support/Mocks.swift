@@ -1,3 +1,4 @@
+import BLEKit
 import CoreNetwork
 @testable import DomainKit
 import Foundation
@@ -145,5 +146,11 @@ extension Door {
 extension DoorEvent {
     static func stub(id: Int = 1, logType: String = "DOOR_OPEN") -> DoorEvent {
         DoorEvent(id: id, logType: logType, eventTimestamp: .now, additionalData: [])
+    }
+}
+
+extension BLEFrame {
+    static func stub(eventType: BLEEventType, logCode: UInt8 = 0x01) -> BLEFrame {
+        BLEFrame(timestamp: .now, logCode: logCode, eventType: eventType, parsedValue: nil)
     }
 }
