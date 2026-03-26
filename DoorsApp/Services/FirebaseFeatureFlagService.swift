@@ -7,9 +7,9 @@ final class FirebaseFeatureFlagService: FeatureFlagServiceProtocol {
     init() {
         let settings = RemoteConfigSettings()
         #if DEBUG
-        settings.minimumFetchInterval = 0
+            settings.minimumFetchInterval = 0
         #else
-        settings.minimumFetchInterval = 3600
+            settings.minimumFetchInterval = 3600
         #endif
         remoteConfig.configSettings = settings
         remoteConfig.setDefaults(Self.defaults)
@@ -29,7 +29,7 @@ private extension FirebaseFeatureFlagService {
     static var defaults: [String: NSObject] {
         [
             FeatureFlag.bleSimulationMode.rawValue: true as NSObject,
-            FeatureFlag.newDoorDetailUI.rawValue: false as NSObject,
+            FeatureFlag.newDoorDetailUI.rawValue: false as NSObject
         ]
     }
 }

@@ -2,22 +2,28 @@
 //  DoorDetailView.swift
 //
 
+import DesignSystemKit
 import DomainKit
 import SwiftUI
 
 public struct DoorDetailView: View {
     let door: Door
     @State private var viewModel: EventsViewModel
+    @State private var useNewUI = false
+    private let featureFlags: any FeatureFlagServiceProtocol
 
-    public init(door: Door) {
+    public init(door: Door, featureFlags: any FeatureFlagServiceProtocol) {
         self.door = door
-        _viewModel = State(initialValue: EventsViewModel(doorId: String(door.id)))
+        self.featureFlags = featureFlags
+        _viewModel = State(initialValue: EventsViewModel(doorId: String(door.id), featureFlags: featureFlags))
     }
 
     public var body: some View {
         Group {
             if viewModel.isLoading {
                 ProgressView(String(localized: "doors.events.loading", bundle: .module))
+            } else if useNewUI {
+                newDetailContent
             } else if viewModel.showRaw {
                 rawList
                     .transition(.opacity)
@@ -29,18 +35,92 @@ public struct DoorDetailView: View {
         .animation(.easeInOut(duration: Layout.toggleAnimationDuration), value: viewModel.showRaw)
         .navigationTitle(door.name)
         .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .bottom) {
+            PrimaryActionButton(
+                String(localized: "doors.events.simulate", bundle: .module),
+                isLoading: viewModel.isSimulating,
+                action: viewModel.onSimulateEvent
+            )
+            .padding(.horizontal)
+            .padding(.bottom, Layout.simulateButtonBottomPadding)
+        }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                let label = viewModel.showRaw
-                    ? String(localized: "doors.events.tab_parsed", bundle: .module)
-                    : String(localized: "doors.events.tab_raw", bundle: .module)
-                Button(label) {
-                    viewModel.onToggleRaw()
+            if !useNewUI {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    let label = viewModel.showRaw
+                        ? String(localized: "doors.events.tab_parsed", bundle: .module)
+                        : String(localized: "doors.events.tab_raw", bundle: .module)
+                    Button(label) {
+                        viewModel.onToggleRaw()
+                    }
                 }
             }
         }
         .errorAlert(message: $viewModel.errorMessage)
         .onAppear { viewModel.onAppear() }
+        .task { useNewUI = await featureFlags.isEnabled(.newDoorDetailUI) }
+    }
+
+    private var newDetailContent: some View {
+        VStack(spacing: 0) {
+            doorInfoBanner
+
+            Picker("", selection: Binding(
+                get: { viewModel.showRaw },
+                set: { newVal in if newVal != viewModel.showRaw { viewModel.onToggleRaw() } }
+            )) {
+                Text(String(localized: "doors.events.tab_parsed", bundle: .module)).tag(false)
+                Text(String(localized: "doors.events.tab_raw", bundle: .module)).tag(true)
+            }
+            .pickerStyle(.segmented)
+            .padding()
+
+            if viewModel.showRaw {
+                rawList
+            } else {
+                eventsList
+            }
+        }
+    }
+
+    private var doorInfoBanner: some View {
+        VStack(alignment: .leading, spacing: Layout.infoSpacing) {
+            if let address = door.address {
+                Label(address, systemImage: "mappin.and.ellipse")
+            }
+            HStack(spacing: Layout.infoChipSpacing) {
+                if let serial = door.serial {
+                    doorChip(icon: "barcode", text: serial)
+                }
+                if let mac = door.lockMac {
+                    doorChip(icon: "lock.fill", text: mac)
+                }
+                if let battery = door.battery {
+                    doorChip(icon: batteryIcon(battery), text: "\(battery)%")
+                }
+            }
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal)
+        .padding(.top, Layout.infoPaddingTop)
+    }
+
+    private func doorChip(icon: String, text: String) -> some View {
+        Label(text, systemImage: icon)
+            .padding(.horizontal, Layout.chipPaddingH)
+            .padding(.vertical, Layout.chipPaddingV)
+            .background(.quaternary, in: Capsule())
+    }
+
+    private func batteryIcon(_ level: Int) -> String {
+        switch level {
+        case 76...: "battery.100"
+        case 51...: "battery.75"
+        case 26...: "battery.50"
+        default: "battery.25"
+        }
     }
 
     private var eventsList: some View {
@@ -85,6 +165,12 @@ public struct DoorDetailView: View {
 extension DoorDetailView {
     enum Layout {
         static let toggleAnimationDuration: Double = 0.2
+        static let infoSpacing: CGFloat = 4
+        static let infoChipSpacing: CGFloat = 6
+        static let infoPaddingTop: CGFloat = 8
+        static let chipPaddingH: CGFloat = 8
+        static let chipPaddingV: CGFloat = 4
+        static let simulateButtonBottomPadding: CGFloat = 8
     }
 
     enum Icons {
@@ -95,17 +181,30 @@ extension DoorDetailView {
 
 // MARK: - Preview
 
+private struct PreviewFeatureFlags: FeatureFlagServiceProtocol {
+    func isEnabled(_: FeatureFlag) async -> Bool {
+        false
+    }
+
+    func stringValue(for _: FeatureFlag) async -> String {
+        ""
+    }
+}
+
 #Preview("Door Detail") {
     NavigationStack {
-        DoorDetailView(door: Door(
-            id: 1,
-            name: "Main Entrance",
-            serial: "SN-001",
-            lockMac: "AA:BB:CC:DD:EE:FF",
-            address: "123 Main St",
-            latitude: nil,
-            longitude: nil,
-            battery: 82
-        ))
+        DoorDetailView(
+            door: Door(
+                id: 1,
+                name: "Main Entrance",
+                serial: "SN-001",
+                lockMac: "AA:BB:CC:DD:EE:FF",
+                address: "123 Main St",
+                latitude: nil,
+                longitude: nil,
+                battery: 82
+            ),
+            featureFlags: PreviewFeatureFlags()
+        )
     }
 }

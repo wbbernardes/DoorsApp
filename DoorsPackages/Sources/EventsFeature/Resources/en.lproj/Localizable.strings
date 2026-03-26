@@ -4,3 +4,4 @@
 "doors.events.raw_empty" = "No Raw Events";
 "doors.events.tab_parsed" = "Parsed";
 "doors.events.tab_raw" = "Raw BLE";
+"doors.events.simulate" = "Simulate Event";

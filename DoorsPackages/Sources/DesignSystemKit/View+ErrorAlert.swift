@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension View {
+public extension View {
     func errorAlert(message: Binding<String?>) -> some View {
         alert("Error", isPresented: .constant(message.wrappedValue != nil)) {
             Button("OK") { message.wrappedValue = nil }
