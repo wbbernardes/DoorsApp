@@ -18,7 +18,7 @@
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:DoorsApp.xcodeproj",
         "identifier" : "B14AF8B42F73B6F2004D280D",
@@ -26,7 +26,7 @@
       }
     },
     {
-      "parallelizable" : true,
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:DoorsApp.xcodeproj",
         "identifier" : "B14AF8BE2F73B6F2004D280D",

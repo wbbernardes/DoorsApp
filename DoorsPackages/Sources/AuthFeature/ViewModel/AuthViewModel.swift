@@ -17,6 +17,8 @@ public final class AuthViewModel {
 
     // MARK: - Computed Properties
 
+    let isUITesting = ProcessInfo.processInfo.arguments.contains("-uitesting")
+
     var isEmailValid: Bool {
         email.contains("@") && email.contains(".")
     }
@@ -133,6 +135,7 @@ public final class AuthViewModel {
     }
 
     private func checkExistingSession() {
+        guard !ProcessInfo.processInfo.arguments.contains("-uitesting") else { return }
         isAuthenticated = (try? KeychainService.shared.readToken()) != nil
     }
 }

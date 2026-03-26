@@ -112,7 +112,6 @@ struct FetchEventsUseCaseTests {
         let repo = MockEventsRepository()
         let useCase = FetchEventsUseCase(repository: repo)
 
-        // Verify execute with only doorId compiles and runs without error (default page=0, size=20)
         let result = try await useCase.execute(doorId: "any-door")
         #expect(result.content.isEmpty)
     }

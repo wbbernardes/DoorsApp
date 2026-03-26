@@ -74,7 +74,7 @@ struct SignUpView: View {
 
             glassField {
                 SecureField(String(localized: "auth.password", bundle: .module), text: $viewModel.password)
-                    .textContentType(.newPassword)
+                    .textContentType(viewModel.isUITesting ? .oneTimeCode : .newPassword)
             }
 
             PasswordRequirementsView(viewModel: viewModel)
@@ -126,21 +126,26 @@ private struct PasswordRequirementsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             row(String(localized: "auth.password_req.length", bundle: .module),
+                id: "password_req_length",
                 isMet: viewModel.passwordLengthValid)
             row(String(localized: "auth.password_req.uppercase", bundle: .module),
+                id: "password_req_uppercase",
                 isMet: viewModel.passwordHasUppercase)
             row(String(localized: "auth.password_req.number", bundle: .module),
+                id: "password_req_number",
                 isMet: viewModel.passwordHasNumber)
             row(String(localized: "auth.password_req.symbol", bundle: .module),
+                id: "password_req_symbol",
                 isMet: viewModel.passwordHasSymbol)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func row(_ text: String, isMet: Bool) -> some View {
+    private func row(_ text: String, id: String, isMet: Bool) -> some View {
         let isEmpty = viewModel.password.isEmpty
         let color: Color = isEmpty ? .secondary.opacity(0.55) : (isMet ? .green : .red)
         let icon = isEmpty ? "circle" : (isMet ? "checkmark.circle.fill" : "xmark.circle.fill")
+        let state = isEmpty ? "neutral" : (isMet ? "met" : "unmet")
 
         return HStack(spacing: 6) {
             Image(systemName: icon)
@@ -150,6 +155,9 @@ private struct PasswordRequirementsView: View {
         .foregroundStyle(color)
         .animation(.easeInOut(duration: 0.2), value: isMet)
         .animation(.easeInOut(duration: 0.2), value: isEmpty)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(id)
+        .accessibilityValue(state)
     }
 }
 

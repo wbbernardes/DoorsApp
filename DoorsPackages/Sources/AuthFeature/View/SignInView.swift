@@ -40,6 +40,7 @@ public struct SignInView: View {
                             .foregroundStyle(.primary)
                     }
                     .font(.footnote)
+                    .accessibilityIdentifier("navigate_to_sign_up")
 
                     Spacer()
                 }
