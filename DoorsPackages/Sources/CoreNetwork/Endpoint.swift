@@ -10,7 +10,7 @@ public enum Endpoint {
     // Events
     case events(doorId: String, page: Int, size: Int)
     case rawEvents(doorId: String, page: Int, size: Int, debug: Bool)
-    case simulateEvent(debug: Bool)
+    case simulateEvent(count: Int, logType: String, debug: Bool)
 
     public var path: String {
         switch self {
@@ -41,8 +41,10 @@ public enum Endpoint {
             [.init(name: "page", value: "\(page)"), .init(name: "size", value: "\(size)"), .init(name: "sort", value: "eventTimestamp,desc")]
         case let .rawEvents(_, page, size, debug):
             [.init(name: "page", value: "\(page)"), .init(name: "size", value: "\(size)"), .init(name: "debug", value: "\(debug)")]
-        case let .simulateEvent(debug):
-            [.init(name: "debug", value: "\(debug)")]
+        case let .simulateEvent(count, logType, debug):
+            [URLQueryItem(name: "count", value: "\(count)"),
+             URLQueryItem(name: "logType", value: logType),
+             URLQueryItem(name: "debug", value: "\(debug)")]
         default:
             nil
         }

@@ -14,10 +14,13 @@ final class EventsViewModel {
     var errorMessage: String?
     var showRaw = false
     var isUnauthorized = false
+    var isSimulating = false
+    var simulationSuccess = false
 
     // MARK: - Dependencies
 
     private let doorId: String
+    private let featureFlags: any FeatureFlagServiceProtocol
     private let fetchEventsUseCase: FetchEventsUseCase
     private let parseFrameUseCase = ParseBLEFrameUseCase()
     private let eventsRepository: any EventsRepository
@@ -26,10 +29,12 @@ final class EventsViewModel {
 
     init(
         doorId: String,
+        featureFlags: any FeatureFlagServiceProtocol,
         fetchEventsUseCase: FetchEventsUseCase = .init(repository: EventsRepositoryImpl()),
         eventsRepository: any EventsRepository = EventsRepositoryImpl()
     ) {
         self.doorId = doorId
+        self.featureFlags = featureFlags
         self.fetchEventsUseCase = fetchEventsUseCase
         self.eventsRepository = eventsRepository
     }
@@ -38,6 +43,10 @@ final class EventsViewModel {
 
     func onAppear() {
         Task { await load() }
+    }
+
+    func onSimulateEvent() {
+        Task { await simulateEvent() }
     }
 
     func onToggleRaw() {
@@ -63,10 +72,32 @@ final class EventsViewModel {
         isLoading = false
     }
 
+    private func simulateEvent() async {
+        isSimulating = true
+        do {
+            let debugMode = await featureFlags.isEnabled(.bleSimulationMode)
+            try await APIClient.shared.requestVoid(.simulateEvent(count: 1, logType: "DOOR_OPEN", debug: debugMode))
+            simulationSuccess = true
+            if showRaw {
+                bleFrames = []
+                await loadRaw()
+            } else {
+                await load()
+            }
+        } catch NetworkError.unauthorized {
+            isUnauthorized = true
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isSimulating = false
+    }
+
     private func loadRaw() async {
         isLoading = true
         do {
-            let response = try await eventsRepository.fetchRawEvents(doorId: doorId, page: 0, size: 50)
+            let debugMode = await featureFlags.isEnabled(.bleSimulationMode)
+            let response = try await eventsRepository
+                .fetchRawEvents(doorId: doorId, page: 0, size: 50, debug: debugMode)
             bleFrames = response.content.compactMap { try? parseFrameUseCase.execute(base64: $0.logEvent) }
         } catch NetworkError.unauthorized {
             isUnauthorized = true

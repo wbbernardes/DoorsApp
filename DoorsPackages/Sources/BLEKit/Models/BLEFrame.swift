@@ -8,7 +8,7 @@ public struct BLEFrame: Identifiable, Sendable {
     public let parsedValue: String?
 
     public init(timestamp: Date, logCode: UInt8, eventType: BLEEventType, parsedValue: String?) {
-        self.id = UUID()
+        id = UUID()
         self.timestamp = timestamp
         self.logCode = logCode
         self.eventType = eventType

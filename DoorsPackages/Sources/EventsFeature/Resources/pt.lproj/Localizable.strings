@@ -4,3 +4,4 @@
 "doors.events.raw_empty" = "Nenhum Evento Raw";
 "doors.events.tab_parsed" = "Interpretado";
 "doors.events.tab_raw" = "BLE Bruto";
+"doors.events.simulate" = "Simular Evento";

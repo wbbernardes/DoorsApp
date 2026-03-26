@@ -18,8 +18,8 @@ public final class APIClient: Sendable {
                 formatter.dateFormat = format
                 if let date = formatter.date(from: string) { return date }
             }
-            throw DecodingError.dataCorruptedError(in: try decoder.singleValueContainer(),
-                debugDescription: "Cannot decode date: \(string)")
+            throw try DecodingError.dataCorruptedError(in: decoder.singleValueContainer(),
+                                                       debugDescription: "Cannot decode date: \(string)")
         }
         return dec
     }()
@@ -28,7 +28,9 @@ public final class APIClient: Sendable {
 
     public func request<T: Decodable & Sendable>(_ endpoint: Endpoint) async throws -> T {
         let urlRequest = try buildRequest(for: endpoint)
+        logRequest(urlRequest)
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        logResponse(response, data: data)
         try validate(response: response, data: data)
         do {
             return try decoder.decode(T.self, from: data)
@@ -41,7 +43,9 @@ public final class APIClient: Sendable {
 
     public func requestVoid(_ endpoint: Endpoint) async throws {
         let urlRequest = try buildRequest(for: endpoint)
+        logRequest(urlRequest)
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        logResponse(response, data: data)
         try validate(response: response, data: data)
     }
 
@@ -65,6 +69,19 @@ public final class APIClient: Sendable {
         }
 
         return request
+    }
+
+    private func logRequest(_ request: URLRequest) {
+        print("[APIClient] --> \(request.httpMethod ?? "?") \(request.url?.absoluteString ?? "?")")
+        if let body = request.httpBody, let json = String(data: body, encoding: .utf8) {
+            print("[APIClient]     Body: \(json)")
+        }
+    }
+
+    private func logResponse(_ response: URLResponse, data: Data) {
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        let body = String(data: data, encoding: .utf8) ?? "<non-utf8>"
+        print("[APIClient] <-- \(status) (\(data.count) bytes): \(body)")
     }
 
     private func validate(response: URLResponse, data: Data) throws {
