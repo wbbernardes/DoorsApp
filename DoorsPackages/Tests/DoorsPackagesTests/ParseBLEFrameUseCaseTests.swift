@@ -1,5 +1,6 @@
+import BLEKit
+import Foundation
 import Testing
-@testable import DomainKit
 
 @Suite("ParseBLEFrameUseCase")
 struct ParseBLEFrameUseCaseTests {
@@ -14,7 +15,7 @@ struct ParseBLEFrameUseCaseTests {
             UInt8((tsRaw >> 8) & 0xFF),
             UInt8((tsRaw >> 16) & 0xFF),
             UInt8((tsRaw >> 24) & 0xFF),
-            logCode,
+            logCode
         ]
         bytes.append(contentsOf: payload)
         return Data(bytes).base64EncodedString()
@@ -59,7 +60,7 @@ struct ParseBLEFrameUseCaseTests {
 
     @Test func parsesScheduleInit() throws {
         // userId=1, start=100, end=200 all LE
-        let payload: [UInt8] = [1,0,0,0, 100,0,0,0, 200,0,0,0]
+        let payload: [UInt8] = [1, 0, 0, 0, 100, 0, 0, 0, 200, 0, 0, 0]
         let frame = try useCase.execute(base64: makeBase64(logCode: 0xC0, payload: payload))
         #expect(frame.eventType == .scheduleInit)
         #expect(frame.parsedValue?.contains("UserId(1)") == true)

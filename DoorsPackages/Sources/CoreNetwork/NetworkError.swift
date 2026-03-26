@@ -11,7 +11,7 @@ public enum NetworkError: Error, LocalizedError, Sendable {
         switch self {
         case .invalidURL: "Invalid URL."
         case .unauthorized: "Session expired. Please sign in again."
-        case .httpError(let code, _): "Server error (\(code))."
+        case let .httpError(code, _): "Server error (\(code))."
         case .decodingFailed: "Unexpected server response."
         case .noToken: "No auth token found."
         }

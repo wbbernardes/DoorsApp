@@ -6,10 +6,22 @@ public final class APIClient: Sendable {
     private let baseURL = "https://hiring-api.samba.dev.assaabloyglobalsolutions.net"
     private let keychain = KeychainService.shared
     private let decoder: JSONDecoder = {
-        let d = JSONDecoder()
-        d.keyDecodingStrategy = .convertFromSnakeCase
-        d.dateDecodingStrategy = .iso8601
-        return d
+        let dec = JSONDecoder()
+        dec.keyDecodingStrategy = .convertFromSnakeCase
+        // API returns timestamps without timezone: "2025-06-12T14:32:00"
+        dec.dateDecodingStrategy = .custom { decoder in
+            let string = try decoder.singleValueContainer().decode(String.self)
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(identifier: "UTC")
+            for format in ["yyyy-MM-dd'T'HH:mm:ssZ", "yyyy-MM-dd'T'HH:mm:ss"] {
+                formatter.dateFormat = format
+                if let date = formatter.date(from: string) { return date }
+            }
+            throw DecodingError.dataCorruptedError(in: try decoder.singleValueContainer(),
+                debugDescription: "Cannot decode date: \(string)")
+        }
+        return dec
     }()
 
     private init() {}
@@ -21,6 +33,8 @@ public final class APIClient: Sendable {
         do {
             return try decoder.decode(T.self, from: data)
         } catch {
+            let raw = String(data: data, encoding: .utf8) ?? "<non-utf8>"
+            print("[APIClient] DecodingFailed for \(T.self): \(error)\nRaw JSON: \(raw)")
             throw NetworkError.decodingFailed(error)
         }
     }
@@ -56,9 +70,14 @@ public final class APIClient: Sendable {
     private func validate(response: URLResponse, data: Data) throws {
         guard let http = response as? HTTPURLResponse else { return }
         switch http.statusCode {
-        case 200...299: break
-        case 401: throw NetworkError.unauthorized
-        default: throw NetworkError.httpError(statusCode: http.statusCode, data: data)
+        case 200 ... 299: break
+        case 401:
+            keychain.deleteToken()
+            throw NetworkError.unauthorized
+        default:
+            let body = String(data: data, encoding: .utf8) ?? "<non-utf8 body>"
+            print("[APIClient] HTTP \(http.statusCode): \(body)")
+            throw NetworkError.httpError(statusCode: http.statusCode, data: data)
         }
     }
 }

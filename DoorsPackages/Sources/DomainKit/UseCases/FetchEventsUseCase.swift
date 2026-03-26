@@ -7,7 +7,7 @@ public struct FetchEventsUseCase: Sendable {
         self.repository = repository
     }
 
-    public func execute(doorId: String) async throws -> [DoorEvent] {
-        try await repository.fetchEvents(doorId: doorId)
+    public func execute(doorId: String, page: Int = 0, size: Int = 20) async throws -> PaginatedResponse<DoorEvent> {
+        try await repository.fetchEvents(doorId: doorId, page: page, size: size)
     }
 }

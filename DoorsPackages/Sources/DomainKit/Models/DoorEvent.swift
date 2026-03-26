@@ -1,35 +1,44 @@
 import Foundation
 
 public struct DoorEvent: Decodable, Identifiable, Sendable {
-    public let id: String
-    public let eventType: String
-    public let timestamp: Date
-    public let parameters: [String: AnyCodable]?
+    public let id: Int
+    public let logType: String
+    public let eventTimestamp: Date
+    public let additionalData: [EventParameter]
+
+    public init(id: Int, logType: String, eventTimestamp: Date, additionalData: [EventParameter]) {
+        self.id = id
+        self.logType = logType
+        self.eventTimestamp = eventTimestamp
+        self.additionalData = additionalData
+    }
 }
 
-// Lightweight wrapper to decode arbitrary JSON values
-public struct AnyCodable: Codable, Sendable {
-    public let value: any Sendable
+public struct EventParameter: Decodable, Sendable {
+    public let parameterName: String
+    public let hexValue: String?
+    public let parsedValue: String?
 
-    public init(_ value: any Sendable) { self.value = value }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let int = try? container.decode(Int.self) { value = int }
-        else if let double = try? container.decode(Double.self) { value = double }
-        else if let bool = try? container.decode(Bool.self) { value = bool }
-        else if let string = try? container.decode(String.self) { value = string }
-        else { value = "" }
+    public init(parameterName: String, hexValue: String?, parsedValue: String?) {
+        self.parameterName = parameterName
+        self.hexValue = hexValue
+        self.parsedValue = parsedValue
     }
+}
 
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch value {
-        case let v as Int: try container.encode(v)
-        case let v as Double: try container.encode(v)
-        case let v as Bool: try container.encode(v)
-        case let v as String: try container.encode(v)
-        default: try container.encodeNil()
-        }
-    }
+public struct RawEventItem: Decodable, Sendable {
+    public let messageKey: String
+    public let logEvent: String
+    public let parsedEvent: ParsedEventDebug?
+}
+
+public struct ParsedEventDebug: Decodable, Sendable {
+    public let logType: String
+    public let additionalData: [DebugParameter]
+}
+
+public struct DebugParameter: Decodable, Sendable {
+    public let parameterName: String
+    public let hexValue: String?
+    public let parsedValue: String?
 }

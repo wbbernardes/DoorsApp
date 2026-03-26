@@ -1,0 +1,11 @@
+// AuthFeature — English
+"auth.app_title" = "Livvi Access";
+"auth.sign_in" = "Sign In";
+"auth.sign_up" = "Create Account";
+"auth.email" = "Email";
+"auth.password" = "Password";
+"auth.first_name" = "First Name";
+"auth.last_name" = "Last Name";
+"auth.password_hint" = "4–12 characters, must include uppercase, number and symbol";
+"auth.sign_up_prompt" = "Don't have an account? Sign Up";
+"auth.sign_in_prompt" = "Already have an account?";

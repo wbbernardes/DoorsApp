@@ -7,7 +7,7 @@ public struct FetchDoorsUseCase: Sendable {
         self.repository = repository
     }
 
-    public func execute(page: Int, limit: Int = 20) async throws -> PaginatedResponse<Door> {
-        try await repository.fetchDoors(page: page, limit: limit)
+    public func execute(page: Int, size: Int = 20) async throws -> PaginatedResponse<Door> {
+        try await repository.fetchDoors(page: page, size: size)
     }
 }

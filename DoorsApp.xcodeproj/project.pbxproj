@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		B14AF8E72F73C672004D280D /* AuthFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B14AF8E62F73C672004D280D /* AuthFeature */; };
 		B14AF8E92F73C672004D280D /* DoorsFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B14AF8E82F73C672004D280D /* DoorsFeature */; };
+		B14AF8EA2F73C672004D280D /* EventsFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B14AF8EB2F73C672004D280D /* EventsFeature */; };
+		B1B027362F74E6FF007A9626 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = B1B027352F74E6FF007A9626 /* FirebaseRemoteConfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +61,8 @@
 			files = (
 				B14AF8E72F73C672004D280D /* AuthFeature in Frameworks */,
 				B14AF8E92F73C672004D280D /* DoorsFeature in Frameworks */,
+				B14AF8EA2F73C672004D280D /* EventsFeature in Frameworks */,
+				B1B027362F74E6FF007A9626 /* FirebaseRemoteConfig in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -129,6 +133,8 @@
 			packageProductDependencies = (
 				B14AF8E62F73C672004D280D /* AuthFeature */,
 				B14AF8E82F73C672004D280D /* DoorsFeature */,
+				B14AF8EB2F73C672004D280D /* EventsFeature */,
+				B1B027352F74E6FF007A9626 /* FirebaseRemoteConfig */,
 			);
 			productName = DoorsApp;
 			productReference = B14AF8A62F73B6EF004D280D /* DoorsApp.app */;
@@ -214,6 +220,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				B14AF8E42F73C346004D280D /* XCLocalSwiftPackageReference "DoorsPackages" */,
+				B1B027342F74E6FF007A9626 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B14AF8A72F73B6EF004D280D /* Products */;
@@ -415,9 +422,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3H5M5A5UC8;
+				DEVELOPMENT_TEAM = 59VH8DLZT2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -430,8 +438,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = wb.DoorsApp;
+				PRODUCT_BUNDLE_IDENTIFIER = "wb.doorsapp-new";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -447,9 +456,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3H5M5A5UC8;
+				DEVELOPMENT_TEAM = 59VH8DLZT2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -462,8 +472,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = wb.DoorsApp;
+				PRODUCT_BUNDLE_IDENTIFIER = "wb.doorsapp-new";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -606,6 +617,17 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		B1B027342F74E6FF007A9626 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = exactVersion;
+				version = 12.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		B14AF8E62F73C672004D280D /* AuthFeature */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -616,6 +638,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B14AF8E42F73C346004D280D /* XCLocalSwiftPackageReference "DoorsPackages" */;
 			productName = DoorsFeature;
+		};
+		B14AF8EB2F73C672004D280D /* EventsFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B14AF8E42F73C346004D280D /* XCLocalSwiftPackageReference "DoorsPackages" */;
+			productName = EventsFeature;
+		};
+		B1B027352F74E6FF007A9626 /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B1B027342F74E6FF007A9626 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

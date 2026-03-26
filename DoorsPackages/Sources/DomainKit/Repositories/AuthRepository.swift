@@ -1,6 +1,6 @@
-import CoreNetwork
+import Foundation
 
 public protocol AuthRepository: Sendable {
-    func signUp(name: String, email: String, password: String) async throws -> AuthToken
+    func signUp(firstName: String, lastName: String, email: String, password: String) async throws -> CreatedUser
     func signIn(email: String, password: String) async throws -> AuthToken
 }

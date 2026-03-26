@@ -1,16 +1,26 @@
 import Foundation
 
-public struct BLEFrame: Sendable {
+public struct BLEFrame: Identifiable, Sendable {
+    public let id: UUID
     public let timestamp: Date
     public let logCode: UInt8
     public let eventType: BLEEventType
     public let parsedValue: String?
 
     public init(timestamp: Date, logCode: UInt8, eventType: BLEEventType, parsedValue: String?) {
+        self.id = UUID()
         self.timestamp = timestamp
         self.logCode = logCode
         self.eventType = eventType
         self.parsedValue = parsedValue
+    }
+
+    public var displayTitle: String {
+        eventType.rawValue.replacingOccurrences(of: "_", with: " ").capitalized
+    }
+
+    public var displayCode: String {
+        String(format: "0x%02X", logCode)
     }
 }
 
@@ -43,7 +53,7 @@ public enum BLEEventType: String, Sendable {
     // 5-byte
     case unlock = "UNLOCK"
     case unlockDenied = "UNLOCK_DENIED"
-    // 12-byte
+    /// 12-byte
     case scheduleInit = "SCHEDULE_INIT"
 
     case unknown = "UNKNOWN"

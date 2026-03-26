@@ -1,0 +1,13 @@
+// DoorsFeature — English
+"doors.title" = "Doors";
+"doors.search_prompt" = "Search by name";
+"doors.sign_out" = "Sign Out";
+"doors.loading" = "Loading doors…";
+"doors.empty" = "No Doors Found";
+"doors.events.loading" = "Loading events…";
+"doors.events.empty" = "No Events";
+"doors.events.raw_empty" = "No Raw Events";
+"doors.events.tab_parsed" = "Parsed";
+"doors.events.tab_raw" = "Raw BLE";
+"common.error_title" = "Error";
+"common.ok" = "OK";

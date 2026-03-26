@@ -12,7 +12,7 @@ public final class KeychainService: Sendable {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: tokenKey,
-            kSecValueData as String: data,
+            kSecValueData as String: data
         ]
         SecItemDelete(query as CFDictionary)
         let status = SecItemAdd(query as CFDictionary, nil)
@@ -26,7 +26,7 @@ public final class KeychainService: Sendable {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: tokenKey,
             kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
+            kSecMatchLimit as String: kSecMatchLimitOne
         ]
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
@@ -40,7 +40,7 @@ public final class KeychainService: Sendable {
     public func deleteToken() {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: tokenKey,
+            kSecAttrAccount as String: tokenKey
         ]
         SecItemDelete(query as CFDictionary)
     }

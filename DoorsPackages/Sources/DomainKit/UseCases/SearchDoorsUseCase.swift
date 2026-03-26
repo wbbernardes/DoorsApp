@@ -7,7 +7,7 @@ public struct SearchDoorsUseCase: Sendable {
         self.repository = repository
     }
 
-    public func execute(query: String, page: Int, limit: Int = 20) async throws -> PaginatedResponse<Door> {
-        try await repository.searchDoors(query: query, page: page, limit: limit)
+    public func execute(name: String, page: Int, size: Int = 20) async throws -> PaginatedResponse<Door> {
+        try await repository.searchDoors(name: name, page: page, size: size)
     }
 }

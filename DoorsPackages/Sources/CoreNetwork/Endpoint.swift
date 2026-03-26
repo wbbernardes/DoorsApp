@@ -2,14 +2,14 @@ import Foundation
 
 public enum Endpoint {
     // Auth
-    case signUp(SignUpRequestBody)
-    case signIn(SignInRequestBody)
+    case signUp(firstName: String, lastName: String, email: String, password: String)
+    case signIn(email: String, password: String)
     // Doors
-    case doors(page: Int, limit: Int)
-    case findDoors(query: String, page: Int, limit: Int)
+    case doors(page: Int, size: Int)
+    case findDoors(name: String, page: Int, size: Int)
     // Events
-    case events(doorId: String)
-    case rawEvents(doorId: String)
+    case events(doorId: String, page: Int, size: Int)
+    case rawEvents(doorId: String, page: Int, size: Int, debug: Bool)
     case simulateEvent(debug: Bool)
 
     public var path: String {
@@ -18,8 +18,8 @@ public enum Endpoint {
         case .signIn: "/users/signin"
         case .doors: "/doors"
         case .findDoors: "/doors/find"
-        case .events(let id): "/doors/\(id)/events"
-        case .rawEvents(let id): "/doors/\(id)/events/raw"
+        case let .events(id, _, _): "/doors/\(id)/events"
+        case let .rawEvents(id, _, _, _): "/doors/\(id)/events/raw"
         case .simulateEvent: "/doors/events/simulate"
         }
     }
@@ -33,11 +33,15 @@ public enum Endpoint {
 
     public var queryItems: [URLQueryItem]? {
         switch self {
-        case .doors(let page, let limit):
-            [.init(name: "page", value: "\(page)"), .init(name: "limit", value: "\(limit)")]
-        case .findDoors(let query, let page, let limit):
-            [.init(name: "name", value: query), .init(name: "page", value: "\(page)"), .init(name: "limit", value: "\(limit)")]
-        case .simulateEvent(let debug):
+        case let .doors(page, size):
+            [.init(name: "page", value: "\(page)"), .init(name: "size", value: "\(size)")]
+        case let .findDoors(name, page, size):
+            [.init(name: "name", value: name), .init(name: "page", value: "\(page)"), .init(name: "size", value: "\(size)")]
+        case let .events(_, page, size):
+            [.init(name: "page", value: "\(page)"), .init(name: "size", value: "\(size)"), .init(name: "sort", value: "eventTimestamp,desc")]
+        case let .rawEvents(_, page, size, debug):
+            [.init(name: "page", value: "\(page)"), .init(name: "size", value: "\(size)"), .init(name: "debug", value: "\(debug)")]
+        case let .simulateEvent(debug):
             [.init(name: "debug", value: "\(debug)")]
         default:
             nil
@@ -46,26 +50,26 @@ public enum Endpoint {
 
     public var body: Encodable? {
         switch self {
-        case .signUp(let b): b
-        case .signIn(let b): b
-        default: nil
+        case let .signUp(firstName, lastName, email, password):
+            SignUpRequestBody(firstName: firstName, lastName: lastName, email: email, password: password)
+        case let .signIn(email, password):
+            SignInRequestBody(email: email, password: password)
+        default:
+            nil
         }
     }
 }
 
-public struct SignUpRequestBody: Encodable, Sendable {
-    public let name: String
-    public let email: String
-    public let password: String
-    public init(name: String, email: String, password: String) {
-        self.name = name; self.email = email; self.password = password
-    }
+// MARK: - Internal request body types
+
+private struct SignUpRequestBody: Encodable {
+    let firstName: String
+    let lastName: String
+    let email: String
+    let password: String
 }
 
-public struct SignInRequestBody: Encodable, Sendable {
-    public let email: String
-    public let password: String
-    public init(email: String, password: String) {
-        self.email = email; self.password = password
-    }
+private struct SignInRequestBody: Encodable {
+    let email: String
+    let password: String
 }
