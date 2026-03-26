@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "FE129B9B-F288-4152-AA4F-2CAD8577D846",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "DoorsPackagesTests",
+        "name" : "DoorsPackagesTests"
+      }
+    }
+  ],
+  "version" : 1
+}

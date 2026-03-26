@@ -39,7 +39,7 @@ let package = Package(
         ),
         .testTarget(
             name: "DoorsPackagesTests",
-            dependencies: ["CoreNetwork", "DomainKit", "BLEKit"],
+            dependencies: ["CoreNetwork", "DomainKit", "BLEKit", "AuthFeature", "DoorsFeature", "EventsFeature"],
             path: "Tests/DoorsPackagesTests"
         )
     ]

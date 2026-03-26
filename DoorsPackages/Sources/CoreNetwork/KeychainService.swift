@@ -1,7 +1,13 @@
 import Foundation
 import Security
 
-public final class KeychainService: Sendable {
+public protocol KeychainServiceProtocol: Sendable {
+    func save(token: String) throws
+    func readToken() throws -> String
+    func deleteToken()
+}
+
+public final class KeychainService: KeychainServiceProtocol, Sendable {
     public static let shared = KeychainService()
     private let tokenKey = "com.doorsapp.auth.token"
 
