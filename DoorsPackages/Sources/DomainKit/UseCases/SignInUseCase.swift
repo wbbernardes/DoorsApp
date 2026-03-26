@@ -2,9 +2,9 @@ import CoreNetwork
 
 public struct SignInUseCase: Sendable {
     private let repository: any AuthRepository
-    private let keychain: KeychainService
+    private let keychain: any KeychainServiceProtocol
 
-    public init(repository: any AuthRepository, keychain: KeychainService = .shared) {
+    public init(repository: any AuthRepository, keychain: any KeychainServiceProtocol = KeychainService.shared) {
         self.repository = repository
         self.keychain = keychain
     }

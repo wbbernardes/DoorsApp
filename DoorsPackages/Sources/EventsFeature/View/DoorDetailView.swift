@@ -10,6 +10,7 @@ public struct DoorDetailView: View {
     let door: Door
     @State private var viewModel: EventsViewModel
     @State private var useNewUI = false
+    @State private var bleSimulationEnabled = false
     private let featureFlags: any FeatureFlagServiceProtocol
 
     public init(door: Door, featureFlags: any FeatureFlagServiceProtocol) {
@@ -36,17 +37,19 @@ public struct DoorDetailView: View {
         .navigationTitle(door.name)
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) {
-            PrimaryActionButton(
-                String(localized: "doors.events.simulate", bundle: .module),
-                isLoading: viewModel.isSimulating,
-                action: viewModel.onSimulateEvent
-            )
-            .padding(.horizontal)
-            .padding(.bottom, Layout.simulateButtonBottomPadding)
+            if bleSimulationEnabled {
+                PrimaryActionButton(
+                    String(localized: "doors.events.simulate", bundle: .module),
+                    isLoading: viewModel.isSimulating,
+                    action: viewModel.onSimulateEvent
+                )
+                .padding(.horizontal)
+                .padding(.bottom, Layout.simulateButtonBottomPadding)
+            }
         }
         .toolbar {
-            if !useNewUI {
-                ToolbarItem(placement: .navigationBarTrailing) {
+            if !useNewUI && bleSimulationEnabled {
+                ToolbarItem(placement: .navigationBarLeading) {
                     let label = viewModel.showRaw
                         ? String(localized: "doors.events.tab_parsed", bundle: .module)
                         : String(localized: "doors.events.tab_raw", bundle: .module)
@@ -55,27 +58,42 @@ public struct DoorDetailView: View {
                     }
                 }
             }
+            if hasFilterOptions {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    filterMenu
+                }
+            }
         }
         .errorAlert(message: $viewModel.errorMessage)
         .onAppear { viewModel.onAppear() }
-        .task { useNewUI = await featureFlags.isEnabled(.newDoorDetailUI) }
+        .task {
+            async let newUI = featureFlags.isEnabled(.newDoorDetailUI)
+            async let bleMode = featureFlags.isEnabled(.bleSimulationMode)
+            useNewUI = await newUI
+            bleSimulationEnabled = await bleMode
+            if !bleSimulationEnabled && viewModel.showRaw {
+                viewModel.showRaw = false
+            }
+        }
     }
 
     private var newDetailContent: some View {
         VStack(spacing: 0) {
             doorInfoBanner
 
-            Picker("", selection: Binding(
-                get: { viewModel.showRaw },
-                set: { newVal in if newVal != viewModel.showRaw { viewModel.onToggleRaw() } }
-            )) {
-                Text(String(localized: "doors.events.tab_parsed", bundle: .module)).tag(false)
-                Text(String(localized: "doors.events.tab_raw", bundle: .module)).tag(true)
+            if bleSimulationEnabled {
+                Picker("", selection: Binding(
+                    get: { viewModel.showRaw },
+                    set: { newVal in if newVal != viewModel.showRaw { viewModel.onToggleRaw() } }
+                )) {
+                    Text(String(localized: "doors.events.tab_parsed", bundle: .module)).tag(false)
+                    Text(String(localized: "doors.events.tab_raw", bundle: .module)).tag(true)
+                }
+                .pickerStyle(.segmented)
+                .padding()
             }
-            .pickerStyle(.segmented)
-            .padding()
 
-            if viewModel.showRaw {
+            if viewModel.showRaw, bleSimulationEnabled {
                 rawList
             } else {
                 eventsList
@@ -123,6 +141,49 @@ public struct DoorDetailView: View {
         }
     }
 
+    private var hasFilterOptions: Bool {
+        viewModel.showRaw
+            ? viewModel.availableBLEFilters.count > 1
+            : viewModel.availableFilters.count > 1
+    }
+
+    private var filterMenu: some View {
+        let isActive = viewModel.showRaw
+            ? viewModel.selectedBLEFilter != .all
+            : viewModel.selectedFilter != .all
+        return Menu {
+            if viewModel.showRaw {
+                ForEach(viewModel.availableBLEFilters, id: \.self) { filter in
+                    Button {
+                        viewModel.selectedBLEFilter = filter
+                    } label: {
+                        if viewModel.selectedBLEFilter == filter {
+                            Label(filter.rawValue, systemImage: "checkmark")
+                        } else {
+                            Text(filter.rawValue)
+                        }
+                    }
+                }
+            } else {
+                ForEach(viewModel.availableFilters, id: \.self) { filter in
+                    Button {
+                        viewModel.selectedFilter = filter
+                    } label: {
+                        if viewModel.selectedFilter == filter {
+                            Label(filter.rawValue, systemImage: "checkmark")
+                        } else {
+                            Text(filter.rawValue)
+                        }
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: isActive
+                ? "line.3.horizontal.decrease.circle.fill"
+                : "line.3.horizontal.decrease.circle")
+        }
+    }
+
     private var eventsList: some View {
         Group {
             if viewModel.events.isEmpty {
@@ -130,8 +191,13 @@ public struct DoorDetailView: View {
                     String(localized: "doors.events.empty", bundle: .module),
                     systemImage: Icons.emptyEvents
                 )
+            } else if viewModel.filteredEvents.isEmpty {
+                ContentUnavailableView(
+                    "No \(viewModel.selectedFilter.rawValue) events",
+                    systemImage: "line.3.horizontal.decrease.circle"
+                )
             } else {
-                List(viewModel.events) { event in
+                List(viewModel.filteredEvents) { event in
                     EventRowView(event: event)
                         .listRowSeparator(.visible)
                         .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
@@ -148,8 +214,13 @@ public struct DoorDetailView: View {
                     String(localized: "doors.events.raw_empty", bundle: .module),
                     systemImage: Icons.emptyRaw
                 )
+            } else if viewModel.filteredBLEFrames.isEmpty {
+                ContentUnavailableView(
+                    "No \(viewModel.selectedBLEFilter.rawValue) frames",
+                    systemImage: "line.3.horizontal.decrease.circle"
+                )
             } else {
-                List(viewModel.bleFrames) { frame in
+                List(viewModel.filteredBLEFrames) { frame in
                     BLEEventRowView(frame: frame)
                         .listRowSeparator(.visible)
                         .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }

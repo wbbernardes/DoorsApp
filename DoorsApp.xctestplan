@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "A712A289-A319-4CC8-958D-A708B1EF960F",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:DoorsApp.xcodeproj",
+      "identifier" : "B14AF8A52F73B6EF004D280D",
+      "name" : "DoorsApp"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:DoorsApp.xcodeproj",
+        "identifier" : "B14AF8B42F73B6F2004D280D",
+        "name" : "DoorsAppTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:DoorsApp.xcodeproj",
+        "identifier" : "B14AF8BE2F73B6F2004D280D",
+        "name" : "DoorsAppUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -43,7 +43,7 @@ struct ParseBLEFrameUseCaseTests {
         // address = 0x00FF (255 LE: 0xFF 0x00)
         let frame = try useCase.execute(base64: makeBase64(logCode: 0x20, payload: [0xFF, 0x00]))
         #expect(frame.eventType == .eepromWriteError)
-        #expect(frame.parsedValue == "WriteError(255)")
+        #expect(frame.parsedValue == "ErrorDescription(255)")
     }
 
     @Test func parsesUnlock() throws {

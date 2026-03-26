@@ -4,7 +4,8 @@ public final class APIClient: Sendable {
     public static let shared = APIClient()
 
     private let baseURL = "https://hiring-api.samba.dev.assaabloyglobalsolutions.net"
-    private let keychain = KeychainService.shared
+    private let session: URLSession
+    private let keychain: any KeychainServiceProtocol
     private let decoder: JSONDecoder = {
         let dec = JSONDecoder()
         dec.keyDecodingStrategy = .convertFromSnakeCase
@@ -24,12 +25,21 @@ public final class APIClient: Sendable {
         return dec
     }()
 
-    private init() {}
+    private init() {
+        session = .shared
+        keychain = KeychainService.shared
+    }
+
+    /// Injectable initializer for integration tests.
+    init(session: URLSession, keychain: any KeychainServiceProtocol = KeychainService.shared) {
+        self.session = session
+        self.keychain = keychain
+    }
 
     public func request<T: Decodable & Sendable>(_ endpoint: Endpoint) async throws -> T {
         let urlRequest = try buildRequest(for: endpoint)
         logRequest(urlRequest)
-        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        let (data, response) = try await session.data(for: urlRequest)
         logResponse(response, data: data)
         try validate(response: response, data: data)
         do {
@@ -44,7 +54,7 @@ public final class APIClient: Sendable {
     public func requestVoid(_ endpoint: Endpoint) async throws {
         let urlRequest = try buildRequest(for: endpoint)
         logRequest(urlRequest)
-        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        let (data, response) = try await session.data(for: urlRequest)
         logResponse(response, data: data)
         try validate(response: response, data: data)
     }

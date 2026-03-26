@@ -43,10 +43,10 @@ public struct ParseBLEFrameUseCase: Sendable {
         // MARK: 2-byte events
         case 0x20:
             let addr = readUInt16(payload)
-            return .init(timestamp: timestamp, logCode: logCode, eventType: .eepromWriteError, parsedValue: "WriteError(\(addr))")
+            return .init(timestamp: timestamp, logCode: logCode, eventType: .eepromWriteError, parsedValue: "ErrorDescription(\(addr))")
         case 0x21:
             let addr = readUInt16(payload)
-            return .init(timestamp: timestamp, logCode: logCode, eventType: .eepromCrcError, parsedValue: "CRCError(\(addr))")
+            return .init(timestamp: timestamp, logCode: logCode, eventType: .eepromCrcError, parsedValue: "ErrorDescription(\(addr))")
 
         // MARK: 4-byte events
         case 0x40:

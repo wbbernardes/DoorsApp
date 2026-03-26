@@ -7,5 +7,9 @@
 "auth.first_name" = "First Name";
 "auth.last_name" = "Last Name";
 "auth.password_hint" = "4–12 characters, must include uppercase, number and symbol";
+"auth.password_req.length" = "4–12 characters";
+"auth.password_req.uppercase" = "One uppercase letter";
+"auth.password_req.number" = "One number";
+"auth.password_req.symbol" = "One symbol";
 "auth.sign_up_prompt" = "Don't have an account? Sign Up";
 "auth.sign_in_prompt" = "Already have an account?";
