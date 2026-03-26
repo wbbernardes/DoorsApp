@@ -1,32 +1,18 @@
-//
-//  DoorsAppApp.swift
-//  DoorsApp
-//
-//  Created by Wesley Brito on 25/03/26.
-//
-
+import AuthFeature
+import Firebase
 import SwiftUI
-import SwiftData
 
 @main
 struct DoorsAppApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+    @State private var authViewModel = AuthViewModel()
 
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    init() {
+        FirebaseApp.configure()
+    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView(authViewModel: authViewModel)
         }
-        .modelContainer(sharedModelContainer)
     }
 }
