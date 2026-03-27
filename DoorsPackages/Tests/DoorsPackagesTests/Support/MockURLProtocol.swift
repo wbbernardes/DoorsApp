@@ -39,15 +39,31 @@ final class MockURLProtocol: URLProtocol {
 // MARK: - Helpers
 
 extension MockURLProtocol {
-    static func stub(statusCode: Int, json: String) {
+    static func stub(statusCode: Int, json: String, headers: [String: String]? = nil) {
         requestHandler = { request in
+            var allHeaders = ["Content-Type": "application/json"]
+            if let headers { allHeaders.merge(headers) { _, new in new } }
             let response = HTTPURLResponse(
                 url: request.url!,
                 statusCode: statusCode,
                 httpVersion: nil,
-                headerFields: ["Content-Type": "application/json"]
+                headerFields: allHeaders
             )!
             return (response, Data(json.utf8))
+        }
+    }
+
+    static func stub(statusCode: Int, data: Data, headers: [String: String]? = nil) {
+        requestHandler = { request in
+            var allHeaders = ["Content-Type": "application/json"]
+            if let headers { allHeaders.merge(headers) { _, new in new } }
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: statusCode,
+                httpVersion: nil,
+                headerFields: allHeaders
+            )!
+            return (response, data)
         }
     }
 
@@ -59,8 +75,17 @@ extension MockURLProtocol {
 
 // MARK: - Factory
 
-func makeTestClient(keychain: any KeychainServiceProtocol = MockKeychainService()) -> APIClient {
+func makeTestClient(
+    keychain: any KeychainServiceProtocol = MockKeychainService(),
+    encryptionService: any EncryptionServiceProtocol = EncryptionService(),
+    encryptionEnabled: Bool = false
+) -> APIClient {
     let config = URLSessionConfiguration.ephemeral
     config.protocolClasses = [MockURLProtocol.self]
-    return APIClient(session: URLSession(configuration: config), keychain: keychain)
+    return APIClient(
+        session: URLSession(configuration: config),
+        keychain: keychain,
+        encryptionService: encryptionService,
+        encryptionEnabled: encryptionEnabled
+    )
 }
