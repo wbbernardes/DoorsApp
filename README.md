@@ -2,8 +2,6 @@
 
 iOS mobile challenge for Vingcard / Livvi Smart Access Control platform.
 
-**Seniority:** Senior iOS Developer
-
 ---
 
 ## Features
