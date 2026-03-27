@@ -15,7 +15,6 @@ iOS mobile challenge for Vingcard / Livvi Smart Access Control platform.
 | Door Events | Implemented | Human-readable parsed events + raw BLE frame view |
 | BLE Frame Parser | Implemented | Full binary protocol coverage (13+ event types) |
 | Feature Flags | Implemented | Local feature flags — alternate door detail UI |
-| Door Permissions | Skipped | Managing door access grants via API — cut for time, architecture supports adding it |
 | Encrypted Requests (plus) | Implemented | ECDH P-256 + HKDF-SHA256 + AES-256-GCM — opt-in via feature flag |
 
 ---
