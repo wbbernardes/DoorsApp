@@ -1,11 +1,14 @@
+import CryptoKit
 import Foundation
 
-public final class APIClient: Sendable {
+public final class APIClient: @unchecked Sendable {
     public static let shared = APIClient()
 
     private let baseURL = "https://hiring-api.samba.dev.assaabloyglobalsolutions.net"
     private let session: URLSession
     private let keychain: any KeychainServiceProtocol
+    private let encryptionService: any EncryptionServiceProtocol
+    public var encryptionEnabled: Bool = true
     private let decoder: JSONDecoder = {
         let dec = JSONDecoder()
         dec.keyDecodingStrategy = .convertFromSnakeCase
@@ -28,24 +31,67 @@ public final class APIClient: Sendable {
     private init() {
         session = .shared
         keychain = KeychainService.shared
+        encryptionService = EncryptionService()
     }
 
     /// Injectable initializer for integration tests.
-    init(session: URLSession, keychain: any KeychainServiceProtocol = KeychainService.shared) {
+    init(
+        session: URLSession,
+        keychain: any KeychainServiceProtocol = KeychainService.shared,
+        encryptionService: any EncryptionServiceProtocol = EncryptionService(),
+        encryptionEnabled: Bool = false
+    ) {
         self.session = session
         self.keychain = keychain
+        self.encryptionService = encryptionService
+        self.encryptionEnabled = encryptionEnabled
     }
 
     public func request<T: Decodable & Sendable>(_ endpoint: Endpoint) async throws -> T {
-        let urlRequest = try buildRequest(for: endpoint)
+        var urlRequest = try buildRequest(for: endpoint)
+
+        var ephemeralPrivateKey: P256.KeyAgreement.PrivateKey?
+        if encryptionEnabled, endpoint.supportsEncryption {
+            let (publicKeyBase64, privateKey) = try encryptionService.generateKeyPair()
+            urlRequest.setValue(publicKeyBase64, forHTTPHeaderField: "X-Client-Public-Key")
+            ephemeralPrivateKey = privateKey
+        }
+
         logRequest(urlRequest)
         let (data, response) = try await session.data(for: urlRequest)
         logResponse(response, data: data)
         try validate(response: response, data: data)
+
+        let plainData: Data
+        if let privateKey = ephemeralPrivateKey,
+           let httpResponse = response as? HTTPURLResponse,
+           let serverPublicKey = httpResponse.value(forHTTPHeaderField: "X-Server-Public-Key") {
+            do {
+                let envelope = try decoder.decode(EncryptedEnvelope.self, from: data)
+                guard let nonceData = Data(base64Encoded: envelope.iv),
+                      let ciphertextData = Data(base64Encoded: envelope.ciphertext)
+                else {
+                    throw EncryptionError.invalidCiphertext
+                }
+                plainData = try encryptionService.decrypt(
+                    ciphertext: ciphertextData,
+                    nonce: nonceData,
+                    serverPublicKeyBase64: serverPublicKey,
+                    privateKey: privateKey
+                )
+                print("[APIClient] Decrypted \(plainData.count) bytes")
+            } catch {
+                print("[APIClient] Decryption failed: \(error)")
+                throw NetworkError.encryptionFailed(error)
+            }
+        } else {
+            plainData = data
+        }
+
         do {
-            return try decoder.decode(T.self, from: data)
+            return try decoder.decode(T.self, from: plainData)
         } catch {
-            let raw = String(data: data, encoding: .utf8) ?? "<non-utf8>"
+            let raw = String(data: plainData, encoding: .utf8) ?? "<non-utf8>"
             print("[APIClient] DecodingFailed for \(T.self): \(error)\nRaw JSON: \(raw)")
             throw NetworkError.decodingFailed(error)
         }

@@ -50,6 +50,15 @@ public enum Endpoint {
         }
     }
 
+    public var supportsEncryption: Bool {
+        switch self {
+        case .signUp, .signIn:
+            false
+        case .doors, .findDoors, .events, .rawEvents, .simulateEvent:
+            true
+        }
+    }
+
     public var body: Encodable? {
         switch self {
         case let .signUp(firstName, lastName, email, password):

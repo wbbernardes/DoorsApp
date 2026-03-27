@@ -14,9 +14,9 @@ iOS mobile challenge for Vingcard / Livvi Smart Access Control platform.
 | Doors List | Implemented | Paginated (20/page), infinite scroll, debounced search |
 | Door Events | Implemented | Human-readable parsed events + raw BLE frame view |
 | BLE Frame Parser | Implemented | Full binary protocol coverage (13+ event types) |
-| Feature Flags | Implemented | Firebase Remote Config — alternate door detail UI |
+| Feature Flags | Implemented | Local feature flags — alternate door detail UI |
 | Door Permissions | Skipped | Managing door access grants via API — cut for time, architecture supports adding it |
-| Encrypted Requests (plus) | Skipped | ECDH + HKDF + AES-GCM over BLE — bonus challenge, deserves full dedicated attention |
+| Encrypted Requests (plus) | Implemented | ECDH P-256 + HKDF-SHA256 + AES-256-GCM — opt-in via feature flag |
 
 ---
 
@@ -25,10 +25,9 @@ iOS mobile challenge for Vingcard / Livvi Smart Access Control platform.
 ```
 DoorsApp (Xcode target)
 │
-├── Firebase (Analytics + Crashlytics + Remote Config) — via SPM
 │
 └── DoorsPackages/ (local multi-target SPM package)
-    ├── CoreNetwork      ← URLSession client, Keychain, Endpoint enum
+    ├── CoreNetwork      ← URLSession client, Keychain, Endpoint enum, E2E encryption
     ├── BLEKit           ← BLE frame parser, simulator, event types
     ├── DomainKit        ← Models, Repository protocols, Use Cases
     ├── DesignSystemKit  ← Shared UI components
@@ -95,6 +94,23 @@ The `GET /doors/events/simulate?debug=true` endpoint was used during development
 
 ---
 
+## End-to-End Encryption
+
+All `/doors/**` endpoints support optional E2E encryption using the same protocol real BLE locks use:
+
+1. **ECDH Key Exchange** — client generates an ephemeral P-256 key pair per request and sends the public key via `X-Client-Public-Key` header (Base64-encoded SPKI DER)
+2. **HKDF Key Derivation** — shared secret derived via ECDH, then a 32-byte symmetric key via HKDF-SHA256 (info: `"door-event-api-v1"`, no salt)
+3. **AES-256-GCM Decryption** — response body contains `{iv, ciphertext}` JSON, decrypted with the derived key
+
+The implementation uses Apple CryptoKit exclusively (no third-party crypto). Encryption is controlled by the `e2eEncryption` feature flag (togglable in the debug menu). When disabled or when the server doesn't return `X-Server-Public-Key`, the client falls back to plain JSON decoding transparently.
+
+Key design decisions:
+- **Ephemeral keys per request** — private key is a local variable scoped to a single `request()` call, never persisted
+- **Protocol-based** — `EncryptionServiceProtocol` enables mock injection for testing without real crypto
+- **Graceful degradation** — if the server omits the `X-Server-Public-Key` header, decryption is skipped silently
+
+---
+
 ## Prerequisites
 
 - Xcode 26 (Beta) or later
@@ -116,8 +132,6 @@ brew install swiftlint swiftformat
 4. Press **Cmd+R** to build and run.
 
 The app resolves `DoorsPackages` as a local Swift Package automatically. No extra steps needed.
-
-> **Firebase:** A `GoogleService-Info.plist` is included in the repo. Remote Config is active. The `newDoorDetailUI` flag controls whether the door detail view uses a segmented picker or tabs.
 
 ---
 
@@ -145,6 +159,8 @@ Test suites:
 | `UseCaseTests` | FetchDoors, SearchDoors, FetchEvents use cases |
 | `PaginatedResponseTests` | Response model decoding and `hasMore` logic |
 | `NetworkErrorTests` | Error enum cases and localized descriptions |
+| `EncryptionServiceTests` | SPKI DER encoding, ECDH key exchange, AES-GCM decrypt round-trip |
+| `EncryptionIntegrationTests` | Header injection, auth exclusion, encrypted response decryption |
 
 ### UI tests (XCTest)
 
@@ -163,19 +179,22 @@ UI tests cover the Sign Up password validation flow (4 scenarios).
 
 ## AI Usage
 
-Claude Code (claude-sonnet-4-6) was used throughout this project as a pairing tool.
+Claude Code (claude-sonnet-4-6 and claude-opus-4-6) was used throughout this project as a pairing tool.
 
 **What AI generated or scaffolded:**
 - Initial boilerplate for SPM `Package.swift` and target structure
 - Mock implementations for unit tests (`MockDoorsRepository`, `MockURLProtocol`, etc.)
 - SwiftLint / SwiftFormat configuration files
 - Repetitive ViewModel state patterns (loading, error, pagination flags)
+- E2E encryption service (ECDH + HKDF + AES-GCM) with SPKI DER encoding helpers
+- Encryption integration into APIClient and associated test suites
 
 **What was reviewed, adjusted, or written manually:**
 - BLE frame parsing logic — reviewed byte-by-byte against the API's debug output to confirm correctness
 - Authentication flow and Keychain integration — inspected and adjusted error handling
-- Feature flag service wiring with Firebase Remote Config
+- Feature flag service wiring
 - Architecture decisions (module boundaries, use case granularity, repository protocol design)
 - All test assertions — verified each `#expect` against actual API responses
+- Encryption protocol design — reviewed SPKI DER header, HKDF parameters, GCM tag handling against the API spec and Postman collection
 
 AI output was always reviewed before accepting. No generated code was blindly committed.

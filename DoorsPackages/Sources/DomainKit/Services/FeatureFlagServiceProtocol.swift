@@ -6,4 +6,5 @@ public protocol FeatureFlagServiceProtocol: Sendable {
 public enum FeatureFlag: String, Sendable, CaseIterable {
     case bleSimulationMode = "ble_simulation_mode"
     case newDoorDetailUI = "new_door_detail_ui"
+    case e2eEncryption = "e2e_encryption"
 }
